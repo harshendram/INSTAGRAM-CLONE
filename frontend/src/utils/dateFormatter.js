@@ -2,36 +2,45 @@
 export const formatTimestamp = (timestamp, includeYear = true) => {
   if (!timestamp) return "Just now";
 
-  const dateOptions = {
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  };
+  try {
+    const date = new Date(timestamp);
 
-  if (includeYear) {
-    dateOptions.year = "numeric";
+    // Check if the date is valid
+    if (isNaN(date.getTime())) return "Just now";
+
+    const dateOptions = {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    };
+
+    if (includeYear) {
+      dateOptions.year = "numeric";
+    }
+
+    return date.toLocaleString(undefined, dateOptions);
+  } catch (error) {
+    return "Just now";
   }
-
-  return new Date(timestamp).toLocaleString(undefined, dateOptions);
 };
 
 // Get a relative time string (e.g. "2 hours ago", "yesterday", "3 days ago")
 export const getRelativeTimeString = (timestamp) => {
-  if (!timestamp) return "Just now";
+  if (!timestamp) return formatTime(new Date());
 
   try {
     const now = new Date();
     const date = new Date(timestamp);
 
-    // Return "Just now" if the date is invalid
-    if (isNaN(date.getTime())) return "Just now";
+    // Return formatted time if the date is invalid
+    if (isNaN(date.getTime())) return formatTime(now);
 
     const secondsAgo = Math.floor((now - date) / 1000);
 
-    // Less than a minute
-    if (secondsAgo < 60) {
-      return "Just now";
+    // Less than 30 seconds - show actual time instead of "Just now"
+    if (secondsAgo < 30) {
+      return formatTime(date);
     }
 
     // Less than an hour
@@ -55,7 +64,20 @@ export const getRelativeTimeString = (timestamp) => {
     // Default to formatted date
     return formatTimestamp(timestamp);
   } catch (error) {
-    // If any error occurs during date processing, default to "Just now"
-    return "Just now";
+    // If any error occurs during date processing, return the current formatted time
+    return formatTime(new Date());
+  }
+};
+
+// Helper function to format time in 12-hour format (e.g., "10:30 AM")
+const formatTime = (date) => {
+  try {
+    return date.toLocaleTimeString(undefined, {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+  } catch (error) {
+    return ""; // Return empty string as fallback
   }
 };

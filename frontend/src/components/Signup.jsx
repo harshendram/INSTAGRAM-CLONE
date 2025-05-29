@@ -73,41 +73,73 @@ const Signup = () => {
       />
     </svg>
   );
+
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-black overflow-hidden">
-      <div className="absolute top-4 right-4">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-black dark:to-gray-900 overflow-hidden transition-all duration-700">
+      <div className="absolute top-4 right-4 fade-in">
         <ThemeToggle />
-      </div>
-      <div className="container px-4 mx-auto flex justify-center">
-        <div className="w-full max-w-sm">
+      </div>{" "}
+      <div className="container px-4 mx-auto flex flex-col md:flex-row gap-8 items-center justify-center">
+        {/* Phone mockup - visible only on medium screens and above */}
+        <div className="hidden md:block relative w-[380px] h-[580px] scale-in">
+          <img
+            src="https://static.cdninstagram.com/images/instagram/xig/homepage/phones/home-phones.png"
+            alt="Instagram App"
+            className="w-full h-full object-contain hover:scale-105 transition-all duration-700"
+          />
+          <div className="absolute top-[90px] right-[18px] w-[250px] h-[540px] overflow-hidden rounded-[25px]">
+            <div className="w-full h-full bg-gradient-to-br from-purple-500 via-pink-500 to-yellow-400 flex flex-col items-center justify-center p-8 opacity-95">
+              <div className="text-3xl font-instagram text-white text-center mb-4">
+                Share your moments
+              </div>
+              <div className="w-20 h-20 rounded-full bg-white bg-opacity-30 flex items-center justify-center mb-4">
+                <svg viewBox="0 0 24 24" fill="white" width="32" height="32">
+                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
+                </svg>
+              </div>
+              <div className="text-lg text-white text-center font-light">
+                Connect with friends, share photos, and create meaningful
+                memories
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          className="w-full max-w-sm fade-in"
+          style={{ animationDelay: "0.2s" }}
+        >
           <form
             onSubmit={signupHandler}
-            className="shadow-md border dark:border-gray-800 bg-white dark:bg-black flex flex-col gap-4 p-8 rounded-md"
+            className="shadow-lg border dark:border-gray-800 bg-white dark:bg-black flex flex-col gap-4 p-8 rounded-xl hover:shadow-xl transition-all duration-300"
           >
             <div className="my-5 flex flex-col items-center justify-center">
-              <div className="flex items-center gap-3 mb-4">
+              <div className="flex items-center gap-3 mb-4 hover:scale-105 transition-all duration-300">
                 <img
                   src={instagramLogo}
                   alt="Instagram Logo"
-                  className="w-12 h-12 rounded-full object-cover"
+                  className="w-14 h-14 rounded-full object-cover shadow-md"
                 />
-                <span className="text-4xl font-instagram text-black dark:text-white">
+                <span className="text-4xl font-instagram instagram-text-gradient">
                   Instagram
                 </span>
               </div>
             </div>
-            <p className="text-sm text-center font-medium text-gray-500 dark:text-gray-400 px-4 mb-4">
+            <p
+              className="text-sm text-center font-medium text-gray-500 dark:text-gray-400 px-4 mb-4 slide-up"
+              style={{ animationDelay: "0.2s" }}
+            >
               Sign up to see photos and videos from your friends.
             </p>
             <Button
               type="button"
-              className="bg-blue-500 hover:bg-blue-600 flex items-center justify-center gap-2 h-11 transition-colors"
+              className="instagram-gradient flex items-center justify-center gap-2 h-11 transition-all duration-300 hover:shadow-lg text-white rounded-xl border-none hover:scale-105 slide-up"
+              style={{ animationDelay: "0.3s" }}
             >
               <svg width="18" height="18" fill="white" viewBox="0 0 24 24">
                 <path d="M12 2.04c-5.5 0-10 4.49-10 10.02 0 5 3.66 9.15 8.44 9.9v-7H7.9v-2.9h2.54V9.85c0-2.51 1.49-3.89 3.78-3.89 1.09 0 2.23.19 2.23.19v2.47h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.45 2.9h-2.33v7a10 10 0 0 0 8.44-9.9c0-5.53-4.5-10.02-10-10.02z" />
               </svg>
               Continue with Facebook
-            </Button>{" "}
+            </Button>
             <div className="flex items-center my-4">
               <div className="h-px bg-gray-300 dark:bg-gray-700 flex-grow"></div>
               <span className="mx-4 text-sm text-gray-500 dark:text-gray-400 font-medium">
@@ -115,60 +147,73 @@ const Signup = () => {
               </span>
               <div className="h-px bg-gray-300 dark:bg-gray-700 flex-grow"></div>
             </div>
-            <div className="space-y-4">
-              <div>
+            <div
+              className="space-y-4 slide-up"
+              style={{ animationDelay: "0.4s" }}
+            >
+              <div className="transition-all duration-300 hover:translate-y-[-2px]">
                 <Input
                   type="text"
                   name="username"
                   placeholder="Username"
                   value={input.username}
                   onChange={changeEventHandler}
-                  className="focus-visible:ring-blue-500 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 h-11 rounded-md"
+                  className="focus-visible:ring-blue-500 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 h-11 rounded-xl shadow-sm hover:shadow transition-all duration-300"
                 />
               </div>
 
-              <div>
+              <div className="transition-all duration-300 hover:translate-y-[-2px]">
                 <Input
                   type="email"
                   name="email"
                   placeholder="Email"
                   value={input.email}
                   onChange={changeEventHandler}
-                  className="focus-visible:ring-blue-500 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 h-11 rounded-md"
+                  className="focus-visible:ring-blue-500 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 h-11 rounded-xl shadow-sm hover:shadow transition-all duration-300"
                 />
               </div>
 
-              <div>
+              <div className="transition-all duration-300 hover:translate-y-[-2px]">
                 <Input
                   type="password"
                   name="password"
                   placeholder="Password"
                   value={input.password}
                   onChange={changeEventHandler}
-                  className="focus-visible:ring-blue-500 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 h-11 rounded-md"
+                  className="focus-visible:ring-blue-500 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 h-11 rounded-xl shadow-sm hover:shadow transition-all duration-300"
                 />
               </div>
             </div>
-            <p className="text-xs text-center text-gray-500 dark:text-gray-400 mt-4 mb-4 px-2">
+            <p
+              className="text-xs text-center text-gray-500 dark:text-gray-400 mt-4 mb-4 px-2 slide-up"
+              style={{ animationDelay: "0.5s" }}
+            >
               By signing up, you agree to our Terms, Privacy Policy and Cookies
               Policy.
             </p>
             {loading ? (
-              <Button className="bg-blue-500 hover:bg-blue-600 h-11 mt-1 font-medium">
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <Button
+                className="instagram-gradient h-11 mt-1 font-medium text-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border-none slide-up"
+                style={{ animationDelay: "0.6s" }}
+              >
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                 Please wait
               </Button>
             ) : (
               <Button
                 type="submit"
-                className="bg-blue-500 hover:bg-blue-600 h-11 mt-1 font-medium transition-all duration-300"
+                className="instagram-gradient h-11 mt-1 font-medium text-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border-none hover:scale-105 slide-up"
+                style={{ animationDelay: "0.6s" }}
               >
                 Sign up
               </Button>
-            )}{" "}
+            )}
           </form>
 
-          <div className="border dark:border-gray-800 p-5 mt-4 text-center bg-white dark:bg-black shadow-md rounded-md">
+          <div
+            className="border dark:border-gray-800 p-5 mt-4 text-center bg-white dark:bg-black shadow-md rounded-xl hover:shadow-lg transition-all duration-300 slide-up"
+            style={{ animationDelay: "0.7s" }}
+          >
             <p className="text-sm">
               Have an account?{" "}
               <Link
@@ -180,29 +225,32 @@ const Signup = () => {
             </p>
           </div>
 
-          <div className="text-center mt-6">
+          <div
+            className="text-center mt-6 fade-in"
+            style={{ animationDelay: "0.8s" }}
+          >
             <p className="text-sm mb-4 text-gray-600 dark:text-gray-400">
               Get the app.
             </p>
             <div className="flex justify-center gap-4">
               <a
                 href="#"
-                className="block transition-transform hover:scale-105"
+                className="block transition-transform hover:scale-105 shadow-sm hover:shadow-md"
               >
                 <img
                   src="https://static.cdninstagram.com/rsrc.php/v3/yt/r/Yfc020c87j0.png"
                   alt="App Store"
-                  className="h-10"
+                  className="h-10 rounded-md"
                 />
               </a>
               <a
                 href="#"
-                className="block transition-transform hover:scale-105"
+                className="block transition-transform hover:scale-105 shadow-sm hover:shadow-md"
               >
                 <img
                   src="https://static.cdninstagram.com/rsrc.php/v3/yz/r/c5Rp7Ym-Klz.png"
                   alt="Google Play"
-                  className="h-10"
+                  className="h-10 rounded-md"
                 />
               </a>
             </div>

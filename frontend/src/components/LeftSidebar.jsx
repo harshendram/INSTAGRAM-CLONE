@@ -90,26 +90,31 @@ const LeftSidebar = () => {
     { icon: <LogOut size={24} />, text: "Logout" },
   ];
   return (
-    <div className="fixed top-0 z-10 left-0 px-2 md:px-4 border-r border-gray-300 dark:border-gray-800 w-[70px] md:w-[230px] h-screen bg-white dark:bg-black transition-all duration-200">
-      {" "}
+    <div className="fixed top-0 z-10 left-0 px-2 md:px-4 border-r border-gray-300 dark:border-gray-800 w-[70px] md:w-[230px] h-screen bg-white dark:bg-black transition-all duration-300 shadow-lg">
       <div className="flex flex-col">
-        <div className="my-8 pl-0 md:pl-3 flex items-center justify-center md:justify-start gap-3">
+        <div className="my-6 pl-0 md:pl-3 flex items-center justify-center md:justify-start gap-2">
           {/* Logo */}
-          <Instagram className="h-9 w-9 dark:text-white" />
-          <div className="hidden md:block text-3xl font-instagram">
+          <div className="flex items-center justify-center">
+            <Instagram className="h-11 w-11 md:h-12 md:w-12 dark:text-white instagram-text-gradient transition-transform duration-300 hover:rotate-12 cursor-pointer" />
+          </div>
+          <div className="hidden md:block text-3xl md:text-4xl font-instagram instagram-text-gradient transition-all duration-300 hover:scale-105 cursor-pointer">
             Instagram
           </div>
         </div>
-        <div>
+        <div className="space-y-1">
           {sidebarItems.map((item, index) => {
             return (
               <div
                 onClick={() => sidebarHandler(item.text)}
                 key={index}
-                className="flex items-center gap-3 relative hover:bg-gray-100 dark:hover:bg-gray-900 cursor-pointer rounded-lg p-3 my-3"
+                className="flex items-center gap-3 relative hover:bg-gray-100 dark:hover:bg-gray-900 cursor-pointer rounded-xl p-3.5 my-2 transition-all duration-200 hover:translate-x-1"
               >
-                {item.icon}{" "}
-                <span className="hidden md:inline">{item.text}</span>{" "}
+                <div className="transition-transform duration-200 hover:scale-110">
+                  {item.icon}
+                </div>
+                <span className="hidden md:inline font-medium">
+                  {item.text}
+                </span>{" "}
                 {item.text === "Notifications" &&
                   (likeNotification?.length > 0 ||
                     commentNotification?.length > 0 ||
@@ -119,9 +124,8 @@ const LeftSidebar = () => {
                       <PopoverTrigger asChild>
                         <Button
                           size="icon"
-                          className="rounded-full h-5 w-5 bg-red-600 hover:bg-red-600 absolute bottom-6 left-6"
+                          className="rounded-full h-6 w-6 instagram-gradient text-white shadow-lg hover:scale-110 transition-transform absolute -top-1 -right-1 md:top-0 md:-right-1 font-medium animate-pulse"
                         >
-                          {" "}
                           {(likeNotification?.length || 0) +
                             (commentNotification?.length || 0) +
                             (followNotification?.length || 0) +

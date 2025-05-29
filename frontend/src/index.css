@@ -141,6 +141,89 @@
   );
   border-radius: 50%;
   padding: 2px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+/* Heart beat animation for likes */
+@keyframes heart-beat {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  10% {
+    transform: scale(1.2);
+    opacity: 0.9;
+  }
+  20% {
+    transform: scale(0.9);
+    opacity: 1;
+  }
+  30% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+.animate-heart-beat {
+  animation: heart-beat 1.5s ease-in-out forwards;
+}
+
+/* Slow slide animation for login/signup phone mockups */
+@keyframes slow-slide {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-320px);
+  }
+}
+
+.animate-slow-slide {
+  animation: slow-slide 20s ease-in-out infinite;
+}
+
+.story-ring::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: inherit;
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.story-ring:hover::before {
+  opacity: 0.6;
+}
+
+.story-ring-active {
+  animation: storyRingPulse 1.5s infinite;
+}
+
+@keyframes storyRingPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* Custom scrollbar */
@@ -170,4 +253,202 @@
 .scrollbar-hide {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
+}
+
+/* Modern Instagram Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes likeAnimation {
+  0% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.2);
+  }
+  50% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes storyRing {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(var(--primary), 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(var(--primary), 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(var(--primary), 0);
+  }
+}
+
+/* Add these animations for chat bubbles */
+@keyframes fadeInChat {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.chat-bubble-in {
+  animation: fadeInChat 0.3s ease-out forwards;
+  transform-origin: bottom left;
+}
+
+.chat-bubble-out {
+  animation: fadeInChat 0.3s ease-out forwards;
+  transform-origin: bottom right;
+}
+
+/* Message typing indicator */
+.typing-indicator {
+  display: flex;
+  align-items: center;
+}
+
+.typing-indicator span {
+  height: 8px;
+  width: 8px;
+  margin: 0 1px;
+  background-color: #9ca3af;
+  border-radius: 50%;
+  display: inline-block;
+  animation: typing 1.4s infinite ease-in-out both;
+}
+
+.typing-indicator span:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.typing-indicator span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes typing {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.5);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Stylish font for Instagram text */
+.instagram-text {
+  font-family: "Grand Hotel", cursive;
+  font-size: 1.8rem;
+  background: linear-gradient(
+    45deg,
+    #f09433,
+    #e6683c,
+    #dc2743,
+    #cc2366,
+    #bc1888
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Chat message send button pulse effect */
+@keyframes sendPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.send-pulse {
+  animation: sendPulse 0.75s infinite;
+}
+
+/* Animation Classes */
+.fade-in {
+  animation: fadeIn 0.3s ease forwards;
+}
+
+.scale-in {
+  animation: scaleIn 0.3s ease forwards;
+}
+
+.slide-up {
+  animation: slideUp 0.3s ease forwards;
+}
+
+.like-animation {
+  animation: likeAnimation 0.5s ease forwards;
+}
+
+/* Transition Classes */
+.transition-all-fast {
+  transition: all 0.2s ease;
+}
+
+.transition-transform-fast {
+  transition: transform 0.2s ease;
+}
+
+.hover-scale {
+  transition: transform 0.2s ease;
+}
+
+.hover-scale:hover {
+  transform: scale(1.05);
 }

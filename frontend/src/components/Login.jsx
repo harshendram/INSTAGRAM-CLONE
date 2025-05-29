@@ -69,68 +69,81 @@ const Login = () => {
     </svg>
   );
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-black overflow-hidden">
-      <div className="absolute top-4 right-4">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-black dark:to-gray-900 overflow-hidden transition-all duration-700">
+      <div className="absolute top-4 right-4 fade-in">
         <ThemeToggle />
       </div>
       <div className="container px-4 mx-auto flex flex-col md:flex-row gap-8 items-center justify-center">
         {/* Phone mockup - visible only on medium screens and above */}
-        <div className="hidden md:block relative w-[380px] h-[580px]">
+        <div
+          className="hidden md:block relative w-[380px] h-[580px] scale-in"
+          style={{ animationDuration: "0.7s" }}
+        >
           <img
             src="https://static.cdninstagram.com/images/instagram/xig/homepage/phones/home-phones.png"
             alt="Instagram App"
-            className="w-full h-full object-contain"
+            className="w-full h-full object-contain hover:scale-105 transition-all duration-700"
           />
         </div>
 
-        <div className="w-full max-w-sm">
+        <div
+          className="w-full max-w-sm fade-in"
+          style={{ animationDelay: "0.2s" }}
+        >
           <form
             onSubmit={signupHandler}
-            className="shadow-md border dark:border-gray-800 bg-white dark:bg-black flex flex-col gap-4 p-8 rounded-md"
+            className="shadow-lg border dark:border-gray-800 bg-white dark:bg-black flex flex-col gap-4 p-8 rounded-xl hover:shadow-xl transition-all duration-300"
           >
             <div className="my-5 flex flex-col items-center justify-center">
-              <div className="flex items-center gap-3 mb-4">
+              <div className="flex items-center gap-3 mb-4 hover:scale-105 transition-all duration-300">
                 <img
                   src={instagramLogo}
                   alt="Instagram Logo"
-                  className="w-12 h-12 rounded-full object-cover"
+                  className="w-14 h-14 rounded-full object-cover shadow-md"
                 />
-                <span className="text-4xl font-instagram text-black dark:text-white">
+                <span className="text-4xl font-instagram instagram-text-gradient">
                   Instagram
                 </span>
               </div>
             </div>{" "}
-            <div className="space-y-4">
-              <div>
+            <div
+              className="space-y-4 slide-up"
+              style={{ animationDelay: "0.3s" }}
+            >
+              <div className="transition-all duration-300 hover:translate-y-[-2px]">
                 <Input
                   type="email"
                   name="email"
                   placeholder="Email"
                   value={input.email}
                   onChange={changeEventHandler}
-                  className="focus-visible:ring-blue-500 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 h-11 rounded-md"
+                  className="focus-visible:ring-blue-500 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 h-11 rounded-xl shadow-sm hover:shadow transition-all duration-300"
                 />
               </div>
-              <div>
+              <div className="transition-all duration-300 hover:translate-y-[-2px]">
                 <Input
                   type="password"
                   name="password"
                   placeholder="Password"
                   value={input.password}
                   onChange={changeEventHandler}
-                  className="focus-visible:ring-blue-500 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 h-11 rounded-md"
+                  className="focus-visible:ring-blue-500 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 h-11 rounded-xl shadow-sm hover:shadow transition-all duration-300"
                 />
               </div>
             </div>
             {loading ? (
-              <Button className="bg-blue-500 hover:bg-blue-600 h-11 mt-3 font-medium">
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <Button
+                className="instagram-gradient h-11 mt-4 font-medium rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border-none slide-up"
+                style={{ animationDelay: "0.4s" }}
+              >
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                 Please wait
               </Button>
             ) : (
               <Button
                 type="submit"
-                className="bg-blue-500 hover:bg-blue-600 h-11 mt-3 font-medium transition-all duration-300"
+                className="instagram-gradient h-11 mt-4 font-medium rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border-none hover:scale-105 slide-up"
+                style={{ animationDelay: "0.4s" }}
               >
                 Log in
               </Button>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
 import { Bookmark, MessageCircle, MoreHorizontal, Send } from "lucide-react";
@@ -19,6 +19,7 @@ const Post = ({ post }) => {
   const [liked, setLiked] = useState(post.likes.includes(user?._id) || false);
   const [postLike, setPostLike] = useState(post.likes.length);
   const [comment, setComment] = useState(post.comments);
+  const [showHeartAnimation, setShowHeartAnimation] = useState(false);
   const dispatch = useDispatch();
 
   const changeEventHandler = (e) => {
@@ -37,13 +38,19 @@ const Post = ({ post }) => {
         `http://localhost:5000/api/v1/post/${post._id}/${action}`,
         { withCredentials: true }
       );
-      console.log(res.data);
       if (res.data.success) {
         const updatedLikes = liked ? postLike - 1 : postLike + 1;
         setPostLike(updatedLikes);
         setLiked(!liked);
 
-        // apne post ko update krunga
+        if (!liked) {
+          setShowHeartAnimation(true);
+          setTimeout(() => {
+            setShowHeartAnimation(false);
+          }, 1500);
+        }
+
+        // Update posts in redux store
         const updatedPostData = posts.map((p) =>
           p._id === post._id
             ? {
@@ -74,7 +81,6 @@ const Post = ({ post }) => {
           withCredentials: true,
         }
       );
-      console.log(res.data);
       if (res.data.success) {
         const updatedCommentData = [...comment, res.data.comment];
         setComment(updatedCommentData);
@@ -124,20 +130,26 @@ const Post = ({ post }) => {
       console.log(error);
     }
   };
+
   return (
-    <div className="w-full border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden bg-white dark:bg-black">
+    <div className="w-full border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden bg-white dark:bg-black mb-4 scale-in hover:shadow-md transition-all duration-300">
       <div className="flex items-center justify-between p-3">
-        <div className="flex items-center gap-2">
-          <Avatar className="h-8 w-8 ring-2 ring-offset-2 ring-gradient-to-tr from-yellow-500 via-pink-500 to-purple-500">
+        <div className="flex items-center gap-3">
+          <Avatar className="h-9 w-9 ring-2 ring-offset-2 ring-gradient-to-tr from-yellow-500 via-pink-500 to-purple-500 hover:scale-110 transition-transform-fast">
             <AvatarImage src={post.author?.profilePicture} alt="post_image" />
-            <AvatarFallback>
+            <AvatarFallback className="font-medium">
               {post.author?.username?.charAt(0)?.toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div className="flex items-center gap-3">
-            <h1 className="font-semibold text-sm">{post.author?.username}</h1>
+            <h1 className="font-semibold text-sm hover:underline cursor-pointer">
+              {post.author?.username}
+            </h1>
             {user?._id === post.author._id && (
-              <Badge variant="secondary" className="h-5 text-xs">
+              <Badge
+                variant="secondary"
+                className="h-5 text-xs bg-gradient-to-r from-blue-500 to-purple-500 text-white"
+              >
                 Author
               </Badge>
             )}
@@ -145,7 +157,7 @@ const Post = ({ post }) => {
         </div>
         <Dialog>
           <DialogTrigger asChild>
-            <MoreHorizontal className="cursor-pointer text-gray-600 dark:text-gray-400" />
+            <MoreHorizontal className="cursor-pointer text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full p-1 transition-colors" />
           </DialogTrigger>
           <DialogContent className="flex flex-col items-center text-sm text-center dark:bg-gray-900 dark:text-white">
             {post?.author?._id !== user?._id && (
@@ -171,59 +183,68 @@ const Post = ({ post }) => {
             )}
           </DialogContent>
         </Dialog>
-      </div>{" "}
-      <img
-        className="w-full aspect-square object-cover"
-        src={post.image}
-        alt="post_img"
-      />
+      </div>
+      <div className="relative">
+        <img
+          className="w-full aspect-square object-cover transition-all duration-200 hover:brightness-95 cursor-pointer"
+          src={post.image}
+          alt="post_img"
+          onDoubleClick={!liked ? likeOrDislikeHandler : undefined}
+        />
+        {showHeartAnimation && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <FaHeart size={80} className="text-white animate-heart-beat" />
+          </div>
+        )}
+      </div>
       <div className="flex items-center justify-between p-3">
-        {" "}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-5">
           {liked ? (
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
               <FaHeart
                 onClick={likeOrDislikeHandler}
-                size={"24"}
-                className="cursor-pointer text-red-500 hover:opacity-80 transition-opacity"
+                size={24}
+                className="cursor-pointer text-red-500 hover:scale-110 transition-transform like-animation"
               />
-              <span className="text-sm">{postLike}</span>
+              <span className="text-sm font-medium">{postLike}</span>
             </div>
           ) : (
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
               <FaRegHeart
                 onClick={likeOrDislikeHandler}
-                size={"24"}
-                className="cursor-pointer hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                size={24}
+                className="cursor-pointer hover:scale-110 transition-transform hover:text-gray-600 dark:hover:text-gray-300"
               />
-              <span className="text-sm">{postLike}</span>
+              <span className="text-sm font-medium">{postLike}</span>
             </div>
           )}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
             <MessageCircle
               onClick={() => {
                 dispatch(setSelectedPost(post));
                 setOpen(true);
               }}
-              size={23}
-              className="cursor-pointer hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+              size={24}
+              className="cursor-pointer hover:scale-110 transition-transform hover:text-gray-600 dark:hover:text-gray-300"
             />
-            <span className="text-sm">{comment.length}</span>
+            <span className="text-sm font-medium">{comment.length}</span>
           </div>
           <Send
-            size={23}
-            className="cursor-pointer hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-          />{" "}
+            size={24}
+            className="cursor-pointer hover:scale-110 hover:rotate-12 transition-transform hover:text-gray-600 dark:hover:text-gray-300"
+          />
         </div>
         <Bookmark
           onClick={bookmarkHandler}
-          size={23}
-          className="cursor-pointer hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+          size={24}
+          className="cursor-pointer hover:scale-110 transition-transform hover:text-gray-600 dark:hover:text-gray-300"
         />
-      </div>{" "}
-      <div className="px-3 pb-3 space-y-2">
+      </div>
+      <div className="px-3 pb-2 space-y-2">
         <p className="text-sm">
-          <span className="font-semibold mr-2">{post.author?.username}</span>
+          <span className="font-semibold mr-2 hover:underline cursor-pointer">
+            {post.author?.username}
+          </span>
           {post.caption}
         </p>
         {comment.length > 0 && (
@@ -232,7 +253,7 @@ const Post = ({ post }) => {
               dispatch(setSelectedPost(post));
               setOpen(true);
             }}
-            className="cursor-pointer text-sm text-gray-500 dark:text-gray-400 block"
+            className="cursor-pointer text-sm text-gray-500 dark:text-gray-400 block hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
           >
             View all {comment.length} comments
           </span>
@@ -244,13 +265,17 @@ const Post = ({ post }) => {
             placeholder="Add a comment..."
             value={text}
             onChange={changeEventHandler}
-            className="outline-none text-sm w-full bg-transparent"
+            className="outline-none text-sm w-full bg-transparent focus:border-b focus:border-gray-300 dark:focus:border-gray-700 transition-all px-1 py-1"
           />
-          {text && (
+          {text ? (
             <span
               onClick={commentHandler}
-              className="text-blue-500 font-semibold cursor-pointer text-sm"
+              className="text-blue-500 hover:text-blue-700 font-semibold cursor-pointer text-sm transition-colors px-2"
             >
+              Post
+            </span>
+          ) : (
+            <span className="text-blue-300 dark:text-blue-900 font-semibold text-sm px-2">
               Post
             </span>
           )}

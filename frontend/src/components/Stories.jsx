@@ -98,54 +98,65 @@ const Stories = () => {
 
   // Don't render if no following users
   if (following.length === 0) return null;
-
   return (
-    <div className="w-full max-w-[470px] mx-auto lg:mx-0 mb-6 relative">
+    <div className="w-full max-w-[470px] mx-auto lg:mx-0 mb-6 relative scale-in">
       {scrollPosition > 0 && (
         <button
           onClick={scrollLeft}
-          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white dark:bg-gray-900 rounded-full shadow-md p-1"
+          className="absolute left-1 top-1/2 -translate-y-1/2 z-10 bg-white/90 dark:bg-gray-900/90 rounded-full shadow-md p-1.5 border border-gray-100 dark:border-gray-800 transition-all-fast hover:bg-gray-100 dark:hover:bg-gray-800 hover:scale-110"
+          aria-label="Scroll left"
         >
-          <ChevronLeft className="h-5 w-5" />
+          <ChevronLeft className="h-4 w-4 text-gray-700 dark:text-gray-300" />
         </button>
       )}
 
       <div
         id="stories-container"
-        className="flex gap-4 p-4 overflow-x-auto scrollbar-hide"
+        className="flex gap-5 py-3 px-4 overflow-x-auto scrollbar-hide bg-white dark:bg-black border border-gray-100 dark:border-gray-800 rounded-xl"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         {/* Current user story */}
-        <div className="flex flex-col items-center min-w-[72px]">
-          <div className="story-ring p-[2px] mb-1">
+        <div className="flex flex-col items-center min-w-[72px] transition-transform-fast hover:-translate-y-1 cursor-pointer">
+          <div className="story-ring p-[2px] mb-1.5 story-ring-active">
             <Avatar className="w-16 h-16 border-2 border-white dark:border-black">
-              <AvatarImage src={user?.profilePicture} />
-              <AvatarFallback>
+              <AvatarImage
+                src={user?.profilePicture}
+                className="transition-transform-fast hover:scale-105"
+              />
+              <AvatarFallback className="font-semibold">
                 {user?.username?.[0]?.toUpperCase()}
               </AvatarFallback>
             </Avatar>
           </div>
-          <span className="text-xs truncate max-w-[72px] text-center">
+          <span className="text-xs font-medium truncate max-w-[72px] text-center">
             Your story
           </span>
         </div>
 
         {/* Following users stories */}
-        {following.map((followedUser) => (
+        {following.map((followedUser, index) => (
           <Link
             to={`/profile/${followedUser?._id}`}
             key={followedUser?._id}
-            className="flex flex-col items-center min-w-[72px]"
+            className="flex flex-col items-center min-w-[72px] transition-transform-fast hover:-translate-y-1"
+            style={{ animationDelay: `${index * 0.05}s` }}
           >
-            <div className="story-ring p-[2px] mb-1">
+            <div
+              className={`story-ring p-[2px] mb-1.5 ${
+                index % 3 === 0 ? "pulse" : ""
+              }`}
+            >
               <Avatar className="w-16 h-16 border-2 border-white dark:border-black">
-                <AvatarImage src={followedUser?.profilePicture} />
-                <AvatarFallback>
+                <AvatarImage
+                  src={followedUser?.profilePicture}
+                  className="transition-transform-fast hover:scale-105"
+                />
+                <AvatarFallback className="font-semibold">
                   {followedUser?.username?.[0]?.toUpperCase()}
                 </AvatarFallback>
               </Avatar>
             </div>
-            <span className="text-xs truncate max-w-[72px] text-center">
+            <span className="text-xs font-medium truncate max-w-[72px] text-center">
               {followedUser?.username}
             </span>
           </Link>
@@ -156,9 +167,10 @@ const Stories = () => {
       {following.length > 4 && (
         <button
           onClick={scrollRight}
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white dark:bg-gray-900 rounded-full shadow-md p-1"
+          className="absolute right-1 top-1/2 -translate-y-1/2 z-10 bg-white/90 dark:bg-gray-900/90 rounded-full shadow-md p-1.5 border border-gray-100 dark:border-gray-800 transition-all-fast hover:bg-gray-100 dark:hover:bg-gray-800 hover:scale-110"
+          aria-label="Scroll right"
         >
-          <ChevronRight className="h-5 w-5" />
+          <ChevronRight className="h-4 w-4 text-gray-700 dark:text-gray-300" />
         </button>
       )}
     </div>

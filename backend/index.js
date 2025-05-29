@@ -34,6 +34,13 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
+// Log all incoming requests for debugging
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
+  console.log("Request cookies:", req.cookies);
+  next();
+});
+
 // yha pr apni api ayengi
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/post", postRoute);

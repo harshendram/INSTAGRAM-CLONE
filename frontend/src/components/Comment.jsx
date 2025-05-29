@@ -6,6 +6,7 @@ import { Input } from "./ui/input";
 import axios from "axios";
 import { toast } from "sonner";
 import { setPosts } from "@/redux/postSlice";
+import { getRelativeTimeString } from "@/utils/dateFormatter";
 
 const Comment = ({ comment, postId }) => {
   const [replying, setReplying] = useState(false);
@@ -76,16 +77,9 @@ const Comment = ({ comment, postId }) => {
             <span className="text-sm pl-2">{comment?.text}</span>
           </div>
           <div className="flex gap-3 mt-1">
+            {" "}
             <span className="text-xs text-gray-500 dark:text-gray-400">
-              {comment?.createdAt
-                ? new Date(comment.createdAt).toLocaleString(undefined, {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })
-                : ""}
+              {getRelativeTimeString(comment?.createdAt)}
             </span>
             <button
               onClick={() => setReplying(!replying)}

@@ -4,8 +4,10 @@ import { Button } from "./ui/button";
 import axios from "axios";
 import { toast } from "sonner";
 import { Link, useNavigate } from "react-router-dom";
-import { Loader2 } from "lucide-react";
+import { Loader2, Instagram } from "lucide-react";
 import { useSelector } from "react-redux";
+import instagramLogo from "../assets/instagramlogo.jpg";
+import { ThemeToggle } from "./ui/theme-toggle";
 
 const Signup = () => {
   const [input, setInput] = useState({
@@ -45,18 +47,20 @@ const Signup = () => {
         });
       }
     } catch (error) {
-      console.log(error);
-      toast.error(error.response.data.message);
+      toast.error(
+        error.response?.data?.message || "Signup failed. Please try again."
+      );
     } finally {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     if (user) {
       navigate("/");
     }
-  }, []); // Instagram SVG Logo
+  }, [user, navigate]);
+
+  // Instagram SVG Logo
   const InstagramTextLogo = ({ className }) => (
     <svg className={className} height="29" viewBox="0 0 103 29" width="103">
       <path
@@ -69,116 +73,139 @@ const Signup = () => {
       />
     </svg>
   );
-
   return (
-    <div className="flex items-center w-screen h-screen justify-center bg-gray-50 dark:bg-black">
-      <div className="w-full max-w-sm">
-        <form
-          onSubmit={signupHandler}
-          className="shadow-sm border dark:border-gray-800 bg-white dark:bg-black flex flex-col gap-4 p-8 rounded-md"
-        >
-          <div className="my-5 flex justify-center">
-            <InstagramTextLogo className="h-12 dark:text-white" />
-          </div>
-
-          <p className="text-sm text-center font-medium text-gray-500 dark:text-gray-400 px-4 mb-2">
-            Sign up to see photos and videos from your friends.
-          </p>
-
-          <Button
-            type="button"
-            className="bg-blue-500 hover:bg-blue-600 flex items-center justify-center gap-2"
+    <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-black overflow-hidden">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
+      <div className="container px-4 mx-auto flex justify-center">
+        <div className="w-full max-w-sm">
+          <form
+            onSubmit={signupHandler}
+            className="shadow-md border dark:border-gray-800 bg-white dark:bg-black flex flex-col gap-4 p-8 rounded-md"
           >
-            <svg width="16" height="16" fill="white" viewBox="0 0 24 24">
-              <path d="M12 2.04c-5.5 0-10 4.49-10 10.02 0 5 3.66 9.15 8.44 9.9v-7H7.9v-2.9h2.54V9.85c0-2.51 1.49-3.89 3.78-3.89 1.09 0 2.23.19 2.23.19v2.47h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.45 2.9h-2.33v7a10 10 0 0 0 8.44-9.9c0-5.53-4.5-10.02-10-10.02z" />
-            </svg>
-            Continue with Facebook
-          </Button>
+            <div className="my-5 flex flex-col items-center justify-center">
+              <div className="flex items-center gap-3 mb-4">
+                <img
+                  src={instagramLogo}
+                  alt="Instagram Logo"
+                  className="w-12 h-12 rounded-full object-cover"
+                />
+                <span className="text-4xl font-instagram text-black dark:text-white">
+                  Instagram
+                </span>
+              </div>
+            </div>
+            <p className="text-sm text-center font-medium text-gray-500 dark:text-gray-400 px-4 mb-4">
+              Sign up to see photos and videos from your friends.
+            </p>
+            <Button
+              type="button"
+              className="bg-blue-500 hover:bg-blue-600 flex items-center justify-center gap-2 h-11 transition-colors"
+            >
+              <svg width="18" height="18" fill="white" viewBox="0 0 24 24">
+                <path d="M12 2.04c-5.5 0-10 4.49-10 10.02 0 5 3.66 9.15 8.44 9.9v-7H7.9v-2.9h2.54V9.85c0-2.51 1.49-3.89 3.78-3.89 1.09 0 2.23.19 2.23.19v2.47h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.45 2.9h-2.33v7a10 10 0 0 0 8.44-9.9c0-5.53-4.5-10.02-10-10.02z" />
+              </svg>
+              Continue with Facebook
+            </Button>{" "}
+            <div className="flex items-center my-4">
+              <div className="h-px bg-gray-300 dark:bg-gray-700 flex-grow"></div>
+              <span className="mx-4 text-sm text-gray-500 dark:text-gray-400 font-medium">
+                OR
+              </span>
+              <div className="h-px bg-gray-300 dark:bg-gray-700 flex-grow"></div>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <Input
+                  type="text"
+                  name="username"
+                  placeholder="Username"
+                  value={input.username}
+                  onChange={changeEventHandler}
+                  className="focus-visible:ring-blue-500 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 h-11 rounded-md"
+                />
+              </div>
 
-          <div className="flex items-center my-2">
-            <div className="h-px bg-gray-300 dark:bg-gray-700 flex-grow"></div>
-            <span className="mx-4 text-sm text-gray-500 dark:text-gray-400 font-medium">
-              OR
-            </span>
-            <div className="h-px bg-gray-300 dark:bg-gray-700 flex-grow"></div>
+              <div>
+                <Input
+                  type="email"
+                  name="email"
+                  placeholder="Email"
+                  value={input.email}
+                  onChange={changeEventHandler}
+                  className="focus-visible:ring-blue-500 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 h-11 rounded-md"
+                />
+              </div>
+
+              <div>
+                <Input
+                  type="password"
+                  name="password"
+                  placeholder="Password"
+                  value={input.password}
+                  onChange={changeEventHandler}
+                  className="focus-visible:ring-blue-500 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 h-11 rounded-md"
+                />
+              </div>
+            </div>
+            <p className="text-xs text-center text-gray-500 dark:text-gray-400 mt-4 mb-4 px-2">
+              By signing up, you agree to our Terms, Privacy Policy and Cookies
+              Policy.
+            </p>
+            {loading ? (
+              <Button className="bg-blue-500 hover:bg-blue-600 h-11 mt-1 font-medium">
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Please wait
+              </Button>
+            ) : (
+              <Button
+                type="submit"
+                className="bg-blue-500 hover:bg-blue-600 h-11 mt-1 font-medium transition-all duration-300"
+              >
+                Sign up
+              </Button>
+            )}{" "}
+          </form>
+
+          <div className="border dark:border-gray-800 p-5 mt-4 text-center bg-white dark:bg-black shadow-md rounded-md">
+            <p className="text-sm">
+              Have an account?{" "}
+              <Link
+                to="/login"
+                className="text-blue-500 hover:text-blue-700 font-semibold transition-colors"
+              >
+                Log in
+              </Link>
+            </p>
           </div>
 
-          <div className="mb-2">
-            <Input
-              type="text"
-              name="username"
-              placeholder="Username"
-              value={input.username}
-              onChange={changeEventHandler}
-              className="focus-visible:ring-transparent bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
-            />
-          </div>
-
-          <div className="mb-2">
-            <Input
-              type="email"
-              name="email"
-              placeholder="Email"
-              value={input.email}
-              onChange={changeEventHandler}
-              className="focus-visible:ring-transparent bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
-            />
-          </div>
-
-          <div className="mb-3">
-            <Input
-              type="password"
-              name="password"
-              placeholder="Password"
-              value={input.password}
-              onChange={changeEventHandler}
-              className="focus-visible:ring-transparent bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
-            />
-          </div>
-
-          <p className="text-xs text-center text-gray-500 dark:text-gray-400 mb-3">
-            By signing up, you agree to our Terms, Privacy Policy and Cookies
-            Policy.
-          </p>
-
-          {loading ? (
-            <Button className="bg-blue-500 hover:bg-blue-600">
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Please wait
-            </Button>
-          ) : (
-            <Button type="submit" className="bg-blue-500 hover:bg-blue-600">
-              Sign up
-            </Button>
-          )}
-        </form>
-
-        <div className="border dark:border-gray-800 p-5 mt-3 text-center bg-white dark:bg-black shadow-sm rounded-md">
-          <p className="text-sm">
-            Have an account?{" "}
-            <Link to="/login" className="text-blue-500 font-semibold">
-              Log in
-            </Link>
-          </p>
-        </div>
-
-        <div className="text-center mt-4">
-          <p className="text-sm my-3">Get the app.</p>
-          <div className="flex justify-center gap-2">
-            <a href="#" className="block">
-              <img
-                src="https://static.cdninstagram.com/rsrc.php/v3/yt/r/Yfc020c87j0.png"
-                alt="App Store"
-                className="h-10"
-              />
-            </a>
-            <a href="#" className="block">
-              <img
-                src="https://static.cdninstagram.com/rsrc.php/v3/yz/r/c5Rp7Ym-Klz.png"
-                alt="Google Play"
-                className="h-10"
-              />
-            </a>
+          <div className="text-center mt-6">
+            <p className="text-sm mb-4 text-gray-600 dark:text-gray-400">
+              Get the app.
+            </p>
+            <div className="flex justify-center gap-4">
+              <a
+                href="#"
+                className="block transition-transform hover:scale-105"
+              >
+                <img
+                  src="https://static.cdninstagram.com/rsrc.php/v3/yt/r/Yfc020c87j0.png"
+                  alt="App Store"
+                  className="h-10"
+                />
+              </a>
+              <a
+                href="#"
+                className="block transition-transform hover:scale-105"
+              >
+                <img
+                  src="https://static.cdninstagram.com/rsrc.php/v3/yz/r/c5Rp7Ym-Klz.png"
+                  alt="Google Play"
+                  className="h-10"
+                />
+              </a>
+            </div>
           </div>
         </div>
       </div>

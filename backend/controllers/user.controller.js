@@ -57,9 +57,8 @@ export const login = async (req, res) => {
         success: false,
       });
     }
-
     const token = await jwt.sign({ userId: user._id }, process.env.SECRET_KEY, {
-      expiresIn: "1d",
+      expiresIn: "5d", // Increased to 5 days
     });
 
     // populate each post if in the posts array
@@ -82,11 +81,14 @@ export const login = async (req, res) => {
       following: user.following,
       posts: populatedPosts,
     };
+    console.log("Setting authentication token cookie");
     return res
       .cookie("token", token, {
         httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
-        maxAge: 1 * 24 * 60 * 60 * 1000,
+        maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days
+        path: "/",
       })
       .json({
         message: `Welcome back ${user.username}`,
@@ -97,14 +99,26 @@ export const login = async (req, res) => {
     console.log(error);
   }
 };
-export const logout = async (_, res) => {
+export const logout = async (req, res) => {
   try {
-    return res.cookie("token", "", { maxAge: 0 }).json({
-      message: "Logged out successfully.",
-      success: true,
-    });
+    console.log("Logging out user, clearing cookie");
+    return res
+      .cookie("token", "", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 0,
+      })
+      .json({
+        message: "Logged out successfully.",
+        success: true,
+      });
   } catch (error) {
-    console.log(error);
+    console.error("Logout error:", error);
+    return res.status(500).json({
+      message: "Error during logout",
+      success: false,
+    });
   }
 };
 export const getProfile = async (req, res) => {
@@ -112,7 +126,15 @@ export const getProfile = async (req, res) => {
     const userId = req.params.id;
     let user = await User.findById(userId)
       .populate({ path: "posts", options: { sort: { createdAt: -1 } } })
-      .populate("bookmarks");
+      .populate("bookmarks")
+      .populate({
+        path: "followers",
+        select: "username profilePicture fullName",
+      })
+      .populate({
+        path: "following",
+        select: "username profilePicture fullName",
+      });
 
     if (!user) {
       return res.status(404).json({
@@ -188,8 +210,8 @@ export const getSuggestedUsers = async (req, res) => {
 };
 export const followOrUnfollow = async (req, res) => {
   try {
-    const followKrneWala = req.id; // patel
-    const jiskoFollowKrunga = req.params.id; // shivani
+    const followKrneWala = req.id; // current user
+    const jiskoFollowKrunga = req.params.id; // target user
     if (followKrneWala === jiskoFollowKrunga) {
       return res.status(400).json({
         message: "You cannot follow/unfollow yourself",
@@ -206,6 +228,11 @@ export const followOrUnfollow = async (req, res) => {
         success: false,
       });
     }
+
+    // Import the socket io instance
+    const { io } = await import("../socket/socket.js");
+    const { getReceiverSocketId } = await import("../socket/socket.js");
+
     // mai check krunga ki follow krna hai ya unfollow
     const isFollowing = user.following.includes(jiskoFollowKrunga);
     if (isFollowing) {
@@ -220,6 +247,21 @@ export const followOrUnfollow = async (req, res) => {
           { $pull: { followers: followKrneWala } }
         ),
       ]);
+
+      // Emit unfollow notification
+      const receiverSocketId = getReceiverSocketId(jiskoFollowKrunga);
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("notification", {
+          type: "unfollow",
+          userId: user._id,
+          userDetails: {
+            username: user.username,
+            profilePicture: user.profilePicture,
+          },
+          timestamp: new Date(),
+        });
+      }
+
       return res
         .status(200)
         .json({ message: "Unfollowed successfully", success: true });
@@ -235,6 +277,30 @@ export const followOrUnfollow = async (req, res) => {
           { $push: { followers: followKrneWala } }
         ),
       ]);
+
+      // Send notification to the user being followed via socket
+      const follower = await User.findById(followKrneWala).select(
+        "username profilePicture"
+      );
+
+      // Import socket utilities here to avoid circular dependency
+      const { getReceiverSocketId, io } = await import("../socket/socket.js");
+
+      // Build notification object
+      const notification = {
+        type: "follow",
+        userId: followKrneWala,
+        userDetails: follower,
+        message: "started following you",
+        timestamp: new Date(),
+      };
+
+      // Emit notification to the user who was followed
+      const receiverSocketId = getReceiverSocketId(jiskoFollowKrunga);
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("notification", notification);
+      }
+
       return res
         .status(200)
         .json({ message: "followed successfully", success: true });

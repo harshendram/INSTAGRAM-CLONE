@@ -125,6 +125,7 @@ export const likePost = async (req, res) => {
         userDetails: user,
         postId,
         message: "Your post was liked",
+        timestamp: new Date(), // Add timestamp to notification
       };
       const postOwnerSocketId = getReceiverSocketId(postOwnerId);
       io.to(postOwnerSocketId).emit("notification", notification);
@@ -160,6 +161,7 @@ export const dislikePost = async (req, res) => {
         userDetails: user,
         postId,
         message: "Your post was liked",
+        timestamp: new Date(), // Add timestamp to notification
       };
       const postOwnerSocketId = getReceiverSocketId(postOwnerId);
       io.to(postOwnerSocketId).emit("notification", notification);
@@ -185,9 +187,7 @@ export const addComment = async (req, res) => {
     if (!text)
       return res
         .status(400)
-        .json({ message: "Text is required", success: false });
-
-    // Create comment with timestamp
+        .json({ message: "Text is required", success: false }); // Create comment with timestamp
     const now = new Date();
     const comment = await Comment.create({
       text,
@@ -205,6 +205,27 @@ export const addComment = async (req, res) => {
 
     post.comments.push(comment._id);
     await post.save();
+
+    // Send notification to post owner if it's not the same person commenting
+    const postOwnerId = post.author.toString();
+    if (postOwnerId !== commentKrneWalaUserKiId) {
+      // Fetch commenter user details
+      const commenter = await User.findById(commentKrneWalaUserKiId).select(
+        "username profilePicture"
+      );
+      // emit a notification event
+      const notification = {
+        type: "comment",
+        userId: commentKrneWalaUserKiId,
+        userDetails: commenter,
+        postId,
+        commentId: comment._id,
+        message: "commented on your post",
+        timestamp: new Date(), // Add timestamp to notification
+      };
+      const postOwnerSocketId = getReceiverSocketId(postOwnerId);
+      io.to(postOwnerSocketId).emit("notification", notification);
+    }
 
     return res.status(201).json({
       message: "Comment Added",
@@ -276,28 +297,73 @@ export const bookmarkPost = async (req, res) => {
   try {
     const postId = req.params.id;
     const authorId = req.id;
-    const post = await Post.findById(postId);
+    const post = await Post.findById(postId).populate("author");
     if (!post)
       return res
         .status(404)
         .json({ message: "Post not found", success: false });
 
     const user = await User.findById(authorId);
+
+    // Import the socket io instance
+    const { io } = await import("../socket/socket.js");
+    const { getReceiverSocketId } = await import("../socket/socket.js");
+
     if (user.bookmarks.includes(post._id)) {
       // already bookmarked -> remove from the bookmark
       await user.updateOne({ $pull: { bookmarks: post._id } });
       await user.save();
-      return res
-        .status(200)
-        .json({
-          type: "unsaved",
-          message: "Post removed from bookmark",
-          success: true,
-        });
+
+      // Emit unsave notification if the user is not the post author
+      if (post.author._id.toString() !== authorId) {
+        const receiverSocketId = getReceiverSocketId(
+          post.author._id.toString()
+        );
+
+        if (receiverSocketId) {
+          io.to(receiverSocketId).emit("notification", {
+            type: "unsave",
+            userId: user._id,
+            postId: post._id,
+            userDetails: {
+              username: user.username,
+              profilePicture: user.profilePicture,
+            },
+            timestamp: new Date(),
+          });
+        }
+      }
+
+      return res.status(200).json({
+        type: "unsaved",
+        message: "Post removed from bookmark",
+        success: true,
+      });
     } else {
       // bookmark krna pdega
       await user.updateOne({ $addToSet: { bookmarks: post._id } });
       await user.save();
+
+      // Emit save notification if the user is not the post author
+      if (post.author._id.toString() !== authorId) {
+        const receiverSocketId = getReceiverSocketId(
+          post.author._id.toString()
+        );
+
+        if (receiverSocketId) {
+          io.to(receiverSocketId).emit("notification", {
+            type: "save",
+            userId: user._id,
+            postId: post._id,
+            userDetails: {
+              username: user.username,
+              profilePicture: user.profilePicture,
+            },
+            timestamp: new Date(),
+          });
+        }
+      }
+
       return res
         .status(200)
         .json({ type: "saved", message: "Post bookmarked", success: true });

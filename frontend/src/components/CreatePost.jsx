@@ -6,9 +6,11 @@ import { Button } from "./ui/button";
 import { readFileAsDataURL } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import axios from "axios";
+// Removed direct axios import as we're using our configured instance
+import api, { checkAuthStatus } from "@/utils/axiosConfig";
 import { useDispatch, useSelector } from "react-redux";
 import { setPosts } from "@/redux/postSlice";
+import { useNavigate } from "react-router-dom";
 
 const CreatePost = ({ open, setOpen }) => {
   const imageRef = useRef();
@@ -19,6 +21,7 @@ const CreatePost = ({ open, setOpen }) => {
   const { user } = useSelector((store) => store.auth);
   const { posts } = useSelector((store) => store.post);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const fileChangeHandler = async (e) => {
     const file = e.target.files?.[0];
@@ -28,30 +31,43 @@ const CreatePost = ({ open, setOpen }) => {
       setImagePreview(dataUrl);
     }
   };
-
   const createPostHandler = async (e) => {
     const formData = new FormData();
     formData.append("caption", caption);
     if (imagePreview) formData.append("image", file);
     try {
       setLoading(true);
-      const res = await axios.post(
-        "http://localhost:5000/api/v1/post/addpost",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-          withCredentials: true,
-        }
-      );
+
+      // Skip pre-emptive authentication check as we'll let the API call handle auth status
+      // This avoids unnecessary redirects when cookie/token might still be valid
+
+      // Use our configured API instance, but override the Content-Type for FormData
+      const res = await api.post("/post/addpost", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        // withCredentials is already set in the api instance
+      });
+
       if (res.data.success) {
-        dispatch(setPosts([res.data.post, ...posts])); // [1] -> [1,2] -> total element = 2
+        dispatch(setPosts([res.data.post, ...posts]));
         toast.success(res.data.message);
         setOpen(false);
       }
     } catch (error) {
-      toast.error(error.response.data.message);
+      console.error("Create post error:", error);
+      if (error.response?.status === 401) {
+        toast.error("Session expired. Please login again.");
+        // Wait a moment before redirecting to show the toast
+        setTimeout(() => {
+          navigate("/login");
+        }, 1500);
+      } else {
+        toast.error(
+          error.response?.data?.message ||
+            "Failed to create post. Please try again."
+        );
+      }
     } finally {
       setLoading(false);
     }

@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import axios from "axios";
+import api from "@/utils/axiosConfig";
 import { toast } from "sonner";
 import { Link, useNavigate } from "react-router-dom";
-import { Loader2 } from "lucide-react";
+import { Loader2, Instagram } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { setAuthUser } from "@/redux/authSlice";
+import instagramLogo from "../assets/instagramlogo.jpg";
+import { ThemeToggle } from "./ui/theme-toggle";
 
 const Login = () => {
   const [input, setInput] = useState({
@@ -21,20 +23,14 @@ const Login = () => {
   const changeEventHandler = (e) => {
     setInput({ ...input, [e.target.name]: e.target.value });
   };
-
   const signupHandler = async (e) => {
     e.preventDefault();
     try {
       setLoading(true);
-      const res = await axios.post(
-        "http://localhost:5000/api/v1/user/login",
-        input,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          withCredentials: true,
-        }
+      const res = await api.post(
+        "/user/login",
+        input
+        // Headers and withCredentials are already set in the api instance
       );
       if (res.data.success) {
         dispatch(setAuthUser(res.data.user));
@@ -46,8 +42,10 @@ const Login = () => {
         });
       }
     } catch (error) {
-      console.log(error);
-      toast.error(error.response.data.message);
+      console.error("Login error:", error);
+      toast.error(
+        error.response?.data?.message || "Login failed. Please try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -70,10 +68,12 @@ const Login = () => {
       />
     </svg>
   );
-
   return (
-    <div className="flex items-center w-screen h-screen justify-center bg-gray-50 dark:bg-black">
-      <div className="flex flex-col md:flex-row gap-4 items-center">
+    <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-black overflow-hidden">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
+      <div className="container px-4 mx-auto flex flex-col md:flex-row gap-8 items-center justify-center">
         {/* Phone mockup - visible only on medium screens and above */}
         <div className="hidden md:block relative w-[380px] h-[580px]">
           <img
@@ -86,60 +86,69 @@ const Login = () => {
         <div className="w-full max-w-sm">
           <form
             onSubmit={signupHandler}
-            className="shadow-sm border dark:border-gray-800 bg-white dark:bg-black flex flex-col gap-4 p-8 rounded-md"
+            className="shadow-md border dark:border-gray-800 bg-white dark:bg-black flex flex-col gap-4 p-8 rounded-md"
           >
-            <div className="my-5 flex justify-center">
-              <InstagramTextLogo className="h-12 dark:text-white" />
+            <div className="my-5 flex flex-col items-center justify-center">
+              <div className="flex items-center gap-3 mb-4">
+                <img
+                  src={instagramLogo}
+                  alt="Instagram Logo"
+                  className="w-12 h-12 rounded-full object-cover"
+                />
+                <span className="text-4xl font-instagram text-black dark:text-white">
+                  Instagram
+                </span>
+              </div>
+            </div>{" "}
+            <div className="space-y-4">
+              <div>
+                <Input
+                  type="email"
+                  name="email"
+                  placeholder="Email"
+                  value={input.email}
+                  onChange={changeEventHandler}
+                  className="focus-visible:ring-blue-500 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 h-11 rounded-md"
+                />
+              </div>
+              <div>
+                <Input
+                  type="password"
+                  name="password"
+                  placeholder="Password"
+                  value={input.password}
+                  onChange={changeEventHandler}
+                  className="focus-visible:ring-blue-500 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 h-11 rounded-md"
+                />
+              </div>
             </div>
-
-            <div className="mb-3">
-              <Input
-                type="email"
-                name="email"
-                placeholder="Email"
-                value={input.email}
-                onChange={changeEventHandler}
-                className="focus-visible:ring-transparent bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
-              />
-            </div>
-
-            <div className="mb-3">
-              <Input
-                type="password"
-                name="password"
-                placeholder="Password"
-                value={input.password}
-                onChange={changeEventHandler}
-                className="focus-visible:ring-transparent bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
-              />
-            </div>
-
             {loading ? (
-              <Button className="bg-blue-500 hover:bg-blue-600">
+              <Button className="bg-blue-500 hover:bg-blue-600 h-11 mt-3 font-medium">
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Please wait
               </Button>
             ) : (
-              <Button type="submit" className="bg-blue-500 hover:bg-blue-600">
+              <Button
+                type="submit"
+                className="bg-blue-500 hover:bg-blue-600 h-11 mt-3 font-medium transition-all duration-300"
+              >
                 Log in
               </Button>
             )}
-
             <div className="flex items-center my-2">
-              <div className="h-px bg-gray-300 dark:bg-gray-700 flex-grow"></div>
+              <div className="h-px bg-gray-300 dark:bg-gray-700 flex-grow"></div>{" "}
               <span className="mx-4 text-sm text-gray-500 dark:text-gray-400 font-medium">
                 OR
               </span>
               <div className="h-px bg-gray-300 dark:bg-gray-700 flex-grow"></div>
             </div>
-
             <button
               type="button"
-              className="flex items-center justify-center gap-2 text-sm text-blue-900 dark:text-blue-600 font-semibold"
+              className="flex items-center justify-center gap-2 text-sm text-blue-900 dark:text-blue-600 font-semibold mt-3 transition-colors hover:text-blue-700"
             >
               <svg
-                width="16"
-                height="16"
+                width="18"
+                height="18"
                 fill="currentColor"
                 viewBox="0 0 24 24"
               >
@@ -147,35 +156,43 @@ const Login = () => {
               </svg>
               Continue with Facebook
             </button>
-
             <a
               href="#"
-              className="text-xs text-blue-900 dark:text-blue-600 text-center mt-3"
+              className="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-500 dark:hover:text-blue-400 text-center mt-4 block transition-colors"
             >
               Forgot password?
             </a>
           </form>
-
-          <div className="border dark:border-gray-800 p-5 mt-3 text-center bg-white dark:bg-black shadow-sm rounded-md">
+          <div className="border dark:border-gray-800 p-5 mt-4 text-center bg-white dark:bg-black shadow-md rounded-md">
             <p className="text-sm">
               Don't have an account?{" "}
-              <Link to="/signup" className="text-blue-500 font-semibold">
+              <Link
+                to="/signup"
+                className="text-blue-500 hover:text-blue-700 font-semibold transition-colors"
+              >
                 Sign up
               </Link>
             </p>
-          </div>
-
-          <div className="text-center mt-4">
-            <p className="text-sm my-3">Get the app.</p>
-            <div className="flex justify-center gap-2">
-              <a href="#" className="block">
+          </div>{" "}
+          <div className="text-center mt-6">
+            <p className="text-sm mb-4 text-gray-600 dark:text-gray-400">
+              Get the app.
+            </p>
+            <div className="flex justify-center gap-4">
+              <a
+                href="#"
+                className="block transition-transform hover:scale-105"
+              >
                 <img
                   src="https://static.cdninstagram.com/rsrc.php/v3/yt/r/Yfc020c87j0.png"
                   alt="App Store"
                   className="h-10"
                 />
               </a>
-              <a href="#" className="block">
+              <a
+                href="#"
+                className="block transition-transform hover:scale-105"
+              >
                 <img
                   src="https://static.cdninstagram.com/rsrc.php/v3/yz/r/c5Rp7Ym-Klz.png"
                   alt="Google Play"

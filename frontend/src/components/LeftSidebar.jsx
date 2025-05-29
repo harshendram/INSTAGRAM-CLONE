@@ -21,17 +21,24 @@ import { useDispatch, useSelector } from "react-redux";
 import { setAuthUser } from "@/redux/authSlice";
 import CreatePost from "./CreatePost";
 import { setPosts, setSelectedPost } from "@/redux/postSlice";
+import { clearNotifications } from "@/redux/rtnSlice";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Button } from "./ui/button";
 import { ThemeToggle } from "./ui/theme-toggle";
 import { cn } from "@/lib/utils";
+import { getRelativeTimeString } from "@/utils/dateFormatter";
 
 const LeftSidebar = () => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
-  const [likeNotification, setLikeNotification] = useState([]);
+  const {
+    likeNotification = [],
+    commentNotification = [],
+    followNotification = [],
+    savePostNotification = [],
+  } = useSelector((state) => state.realTimeNotification || {});
 
   const logout = async () => {
     try {
@@ -53,7 +60,7 @@ const LeftSidebar = () => {
     } else if (text === "Messages") {
       navigate("/chat");
     } else if (text === "Notifications") {
-      setLikeNotification([]);
+      dispatch(clearNotifications());
     } else if (text === "Create") {
       setOpen(true);
     } else if (text === "Profile") {
@@ -84,12 +91,13 @@ const LeftSidebar = () => {
   ];
   return (
     <div className="fixed top-0 z-10 left-0 px-2 md:px-4 border-r border-gray-300 dark:border-gray-800 w-[70px] md:w-[230px] h-screen bg-white dark:bg-black transition-all duration-200">
+      {" "}
       <div className="flex flex-col">
-        <div className="my-8 pl-0 md:pl-3 flex items-center justify-center md:justify-start">
+        <div className="my-8 pl-0 md:pl-3 flex items-center justify-center md:justify-start gap-3">
           {/* Logo */}
-          <div className="hidden md:block text-xl font-bold">Instagram</div>
-          <div className="block md:hidden">
-            <Instagram className="h-7 w-7 dark:text-white" />
+          <Instagram className="h-9 w-9 dark:text-white" />
+          <div className="hidden md:block text-3xl font-instagram">
+            Instagram
           </div>
         </div>
         <div>
@@ -100,47 +108,164 @@ const LeftSidebar = () => {
                 key={index}
                 className="flex items-center gap-3 relative hover:bg-gray-100 dark:hover:bg-gray-900 cursor-pointer rounded-lg p-3 my-3"
               >
-                {item.icon}
-                <span className="hidden md:inline">{item.text}</span>
+                {item.icon}{" "}
+                <span className="hidden md:inline">{item.text}</span>{" "}
                 {item.text === "Notifications" &&
-                  likeNotification.length > 0 && (
+                  (likeNotification?.length > 0 ||
+                    commentNotification?.length > 0 ||
+                    followNotification?.length > 0 ||
+                    savePostNotification?.length > 0) && (
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button
                           size="icon"
                           className="rounded-full h-5 w-5 bg-red-600 hover:bg-red-600 absolute bottom-6 left-6"
                         >
-                          {likeNotification.length}
+                          {" "}
+                          {(likeNotification?.length || 0) +
+                            (commentNotification?.length || 0) +
+                            (followNotification?.length || 0) +
+                            (savePostNotification?.length || 0)}
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent>
-                        <div>
-                          {likeNotification.length === 0 ? (
-                            <p>No new notification</p>
+                      <PopoverContent className="w-80">
+                        <div className="max-h-96 overflow-y-auto">
+                          <h3 className="font-semibold mb-2 text-sm">
+                            Notifications
+                          </h3>{" "}
+                          {likeNotification?.length === 0 &&
+                          commentNotification?.length === 0 &&
+                          followNotification?.length === 0 &&
+                          savePostNotification?.length === 0 ? (
+                            <p className="text-gray-500">
+                              No new notifications
+                            </p>
                           ) : (
-                            likeNotification.map((notification) => {
-                              return (
+                            <>
+                              {followNotification?.map((notification) => (
                                 <div
-                                  key={notification.userId}
-                                  className="flex items-center gap-2 my-2"
+                                  key={`follow-${notification.userId}`}
+                                  className="flex items-center gap-2 my-2 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
                                 >
-                                  <Avatar>
+                                  <Avatar className="h-9 w-9">
                                     <AvatarImage
                                       src={
                                         notification.userDetails?.profilePicture
                                       }
                                     />
-                                    <AvatarFallback>CN</AvatarFallback>
+                                    <AvatarFallback>
+                                      {notification.userDetails?.username?.[0]?.toUpperCase()}
+                                    </AvatarFallback>
                                   </Avatar>
-                                  <p className="text-sm">
-                                    <span className="font-bold">
-                                      {notification.userDetails?.username}
-                                    </span>{" "}
-                                    liked your post
-                                  </p>
+                                  <div>
+                                    <p className="text-sm">
+                                      <span className="font-bold">
+                                        {notification.userDetails?.username}
+                                      </span>{" "}
+                                      started following you
+                                    </p>{" "}
+                                    <span className="text-xs text-gray-500">
+                                      {getRelativeTimeString(
+                                        notification.timestamp
+                                      )}
+                                    </span>
+                                  </div>
                                 </div>
-                              );
-                            })
+                              ))}
+
+                              {likeNotification?.map((notification) => (
+                                <div
+                                  key={`like-${notification.userId}-${notification.postId}`}
+                                  className="flex items-center gap-2 my-2 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
+                                >
+                                  <Avatar className="h-9 w-9">
+                                    <AvatarImage
+                                      src={
+                                        notification.userDetails?.profilePicture
+                                      }
+                                    />
+                                    <AvatarFallback>
+                                      {notification.userDetails?.username?.[0]?.toUpperCase()}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <div>
+                                    <p className="text-sm">
+                                      <span className="font-bold">
+                                        {notification.userDetails?.username}
+                                      </span>{" "}
+                                      liked your post
+                                    </p>{" "}
+                                    <span className="text-xs text-gray-500">
+                                      {getRelativeTimeString(
+                                        notification.timestamp
+                                      )}
+                                    </span>
+                                  </div>
+                                </div>
+                              ))}
+
+                              {commentNotification?.map((notification) => (
+                                <div
+                                  key={`comment-${notification.userId}-${notification.commentId}`}
+                                  className="flex items-center gap-2 my-2 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
+                                >
+                                  <Avatar className="h-9 w-9">
+                                    <AvatarImage
+                                      src={
+                                        notification.userDetails?.profilePicture
+                                      }
+                                    />
+                                    <AvatarFallback>
+                                      {notification.userDetails?.username?.[0]?.toUpperCase()}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <div>
+                                    <p className="text-sm">
+                                      <span className="font-bold">
+                                        {notification.userDetails?.username}
+                                      </span>{" "}
+                                      commented on your post
+                                    </p>{" "}
+                                    <span className="text-xs text-gray-500">
+                                      {getRelativeTimeString(
+                                        notification.timestamp
+                                      )}
+                                    </span>
+                                  </div>
+                                </div>
+                              ))}
+
+                              {savePostNotification?.map((notification) => (
+                                <div
+                                  key={`save-${notification.userId}-${notification.postId}`}
+                                  className="flex items-center gap-2 my-2 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
+                                >
+                                  <Avatar className="h-9 w-9">
+                                    <AvatarImage
+                                      src={
+                                        notification.userDetails?.profilePicture
+                                      }
+                                    />
+                                    <AvatarFallback>
+                                      {notification.userDetails?.username?.[0]?.toUpperCase()}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <div>
+                                    <p className="text-sm">
+                                      <span className="font-bold">
+                                        {notification.userDetails?.username}
+                                      </span>{" "}
+                                      saved your post
+                                    </p>{" "}
+                                    <span className="text-xs text-gray-500">
+                                      {getRelativeTimeString(
+                                        notification.timestamp
+                                      )}
+                                    </span>
+                                  </div>
+                                </div>
+                              ))}
+                            </>
                           )}
                         </div>
                       </PopoverContent>
@@ -151,7 +276,6 @@ const LeftSidebar = () => {
           })}
         </div>
       </div>
-
       <CreatePost open={open} setOpen={setOpen} />
     </div>
   );

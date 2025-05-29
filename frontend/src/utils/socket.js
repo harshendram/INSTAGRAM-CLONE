@@ -19,9 +19,6 @@ export const getSocket = (userId) => {
     process.env.NODE_ENV === "production"
       ? window.location.origin // Use the same domain in production
       : "http://localhost:5000"; // Localhost for development
-
-  console.log(`Connecting to socket server at: ${serverUrl}`);
-
   // Create new socket connection with reconnection options
   socket = io(serverUrl, {
     query: { userId },
@@ -35,17 +32,11 @@ export const getSocket = (userId) => {
 
   // Setup connection event handlers
   socket.on("connect", () => {
-    console.log("Socket connected successfully");
     reconnectAttempts = 0;
   });
 
-  socket.on("connect_error", (error) => {
-    console.error("Socket connection error:", error);
+  socket.on("connect_error", () => {
     reconnectAttempts++;
-
-    if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
-      console.error("Max reconnection attempts reached, giving up");
-    }
   });
 
   return socket;

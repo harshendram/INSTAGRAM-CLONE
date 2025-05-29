@@ -11,7 +11,12 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setSocket } from "./redux/socketSlice";
 import { setOnlineUsers } from "./redux/chatSlice";
-import { setLikeNotification } from "./redux/rtnSlice";
+import {
+  setLikeNotification,
+  setCommentNotification,
+  setFollowNotification,
+  setSavePostNotification,
+} from "./redux/rtnSlice";
 import ProtectedRoutes from "./components/ProtectedRoutes";
 import { getSocket, closeSocket } from "./utils/socket.js";
 import { ThemeProvider } from "./components/ui/theme-provider";
@@ -96,9 +101,22 @@ function App() {
       socketio.on("getOnlineUsers", (onlineUsers) => {
         dispatch(setOnlineUsers(onlineUsers));
       });
-
       socketio.on("notification", (notification) => {
-        dispatch(setLikeNotification(notification));
+        if (notification.type === "like" || notification.type === "dislike") {
+          dispatch(setLikeNotification(notification));
+        } else if (notification.type === "comment") {
+          dispatch(setCommentNotification(notification));
+        } else if (
+          notification.type === "follow" ||
+          notification.type === "unfollow"
+        ) {
+          dispatch(setFollowNotification(notification));
+        } else if (
+          notification.type === "save" ||
+          notification.type === "unsave"
+        ) {
+          dispatch(setSavePostNotification(notification));
+        }
       });
 
       // Clean up function to remove listeners on unmount or user change

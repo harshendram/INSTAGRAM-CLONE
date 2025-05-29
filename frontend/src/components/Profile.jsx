@@ -32,52 +32,79 @@ const Profile = () => {
   }, [userId]);
 
   const isLoggedInUserProfile = user?._id === userProfile?._id;
-  const isFollowing = user?.following?.includes(userProfile?._id);
-
-  // Fetch followers data when needed
+  const isFollowing = user?.following?.includes(userProfile?._id); // Use populated followers data directly
   const fetchFollowers = async () => {
-    if (!userProfile?._id || userProfile.followers.length === 0) return;
+    if (!userProfile?._id) return;
+    if (!userProfile.followers || userProfile.followers.length === 0) {
+      setFollowers([]);
+      return;
+    }
 
-    setIsLoadingUsers(true);
-    try {
-      const promises = userProfile.followers.map(async (followerId) => {
-        const res = await axios.get(
-          `http://localhost:5000/api/v1/user/${followerId}/profile`,
-          {
-            withCredentials: true,
-          }
-        );
-        return res.data.success ? res.data.user : null;
-      });
+    // If already populated as objects, use directly
+    if (
+      typeof userProfile.followers[0] === "object" &&
+      userProfile.followers[0]?._id
+    ) {
+      setFollowers(userProfile.followers);
+    } else {
+      // Fallback to fetching if we only have IDs
+      setIsLoadingUsers(true);
+      try {
+        const promises = userProfile.followers.map(async (followerId) => {
+          const id =
+            typeof followerId === "object" ? followerId._id : followerId;
+          const res = await axios.get(
+            `http://localhost:5000/api/v1/user/${id}/profile`,
+            {
+              withCredentials: true,
+            }
+          );
+          return res.data.success ? res.data.user : null;
+        });
 
-      const results = await Promise.all(promises);
-      setFollowers(results.filter(Boolean));
-    } catch (error) {
-      console.error("Error fetching followers:", error);
-      toast.error("Failed to load followers");
-    } finally {
-      setIsLoadingUsers(false);
+        const results = await Promise.all(promises);
+        setFollowers(results.filter(Boolean));
+      } catch (error) {
+        console.error("Error fetching follower users:", error);
+        toast.error("Failed to load followers");
+      } finally {
+        setIsLoadingUsers(false);
+      }
     }
   };
-
   // Fetch following data when needed
   const fetchFollowing = async () => {
-    if (!userProfile?._id || userProfile.following.length === 0) return;
+    if (!userProfile?._id) return;
+    if (!userProfile.following || userProfile.following.length === 0) {
+      setFollowing([]);
+      return;
+    }
 
     setIsLoadingUsers(true);
     try {
-      const promises = userProfile.following.map(async (followingId) => {
-        const res = await axios.get(
-          `http://localhost:5000/api/v1/user/${followingId}/profile`,
-          {
-            withCredentials: true,
-          }
-        );
-        return res.data.success ? res.data.user : null;
-      });
+      // Direct usage of populated data if available
+      if (
+        typeof userProfile.following[0] === "object" &&
+        userProfile.following[0]?._id
+      ) {
+        setFollowing(userProfile.following);
+      } else {
+        // Fallback to fetching if we only have IDs
+        const promises = userProfile.following.map(async (followingId) => {
+          const id =
+            typeof followingId === "object" ? followingId._id : followingId;
+          const res = await axios.get(
+            `http://localhost:5000/api/v1/user/${id}/profile`,
+            {
+              withCredentials: true,
+            }
+          );
+          return res.data.success ? res.data.user : null;
+        });
 
-      const results = await Promise.all(promises);
-      setFollowing(results.filter(Boolean));
+        const results = await Promise.all(promises);
+        setFollowing(results.filter(Boolean));
+      }
     } catch (error) {
       console.error("Error fetching following users:", error);
       toast.error("Failed to load following users");
